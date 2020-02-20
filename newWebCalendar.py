@@ -5,7 +5,7 @@ import pandas as pd
 
 def createHTMLFile(fileNameEvents):
     curData = datetime.datetime.today()
-    # weeks2Show = 6
+    weeks2Show = 6
     mainTable = [[0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0],
                  [0,0,0,0,0,0,0],
@@ -81,15 +81,12 @@ def createHTMLFile(fileNameEvents):
     for i in range(len(curMonthArr) - curWeek-1):
         mainTable[1 + i][:] = curMonthArr[curWeek+1+i][:]
     
-    for i in range(6 - (len(curMonthArr) - curWeek)):
+    for i in range(weeks2Show - (len(curMonthArr) - curWeek)):
         if flagNext==1:
             mainTable[len(curMonthArr) - curWeek + i][:] = next1Month[i+1][:]
         else:
             mainTable[len(curMonthArr) - curWeek + i][:] = next1Month[i][:]
     
-    # for i in range(6):
-    #     print(mainTable[i][:])
-
     # parsing dates
     markDate = [[0,0,0,0,0,0,0],
              [0,0,0,0,0,0,0],
@@ -100,18 +97,14 @@ def createHTMLFile(fileNameEvents):
     df = pd.read_csv(fileNameEvents, sep=',', header=None)
     df1 = df
     eventsCount = len(df[0])
-    #dates2Mark = pd.DataFrame([])
     for i in range(eventsCount):
         date1 = df[0][i].split('.')
         date2 = df[1][i].split('.')
         df1[0][0+i:1+i] = df[0][0+i:1+i].replace(df[0][i],datetime.date(int(date1[2]),int(date1[1]),int(date1[0])))
         df1[1][0+i:1+i] = df[1][0+i:1+i].replace(df[1][i],datetime.date(int(date2[2]),int(date2[1]),int(date2[0])))
-        # print(date1,df[1][i])
     
     # sort starting date    
     #df = df.sort_values(by=0, ascending=True)
-    #sort finishing date
-    #df1 = df1.sort_values(by=1, ascending=True)
     jjj = 0
     flagMarkNextMonth = 0
     strDates = []
@@ -132,7 +125,7 @@ def createHTMLFile(fileNameEvents):
                 markDate[0][curData.isoweekday()+j-1] = 1
                 strDates.append(df[2][i])
                 strDates2.append(data2Mark)
-    for ij in range(1,6):
+    for ij in range(1,weeks2Show):
         for j in range(7):
                    
             if flagMarkNextMonth == 1:
@@ -163,7 +156,7 @@ def createHTMLFile(fileNameEvents):
     string1 = '<!DOCTYPE html> <html lang="ru"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta http-equiv="X-UA-Compatible" content="ie=edge"> <meta http-equiv="Refresh" content="15" /> <title>Calendar</title> <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700" rel="stylesheet"> <link rel="stylesheet" type="text/css" href="style.css"> </head> <body> <div class="main-container-wrapper"> <div class="main-container-subwrapper-1"> <div class="calendar-container"> <div class="calendar-container__header"> <button class="calendar-container__btn calendar-container__btn--left" title="Previous"> <i class="icon ion-ios-arrow-back"></i> </button>'
     header1 = '<h2 class="calendar-container__title">'+str(curData)[0:16]+'</h2>'
     string2 = '<button class="calendar-container__btn calendar-container__btn--right" title="Next"> <i class="icon ion-ios-arrow-forward"></i> </button> </div> <div class="calendar-container__body"> <div class="calendar-table"> <div class="calendar-table__header"> <div class="calendar-table__row"> <div class="calendar-table__col">Пн</div> <div class="calendar-table__col">Вт</div> <div class="calendar-table__col">Ср</div> <div class="calendar-table__col">Чт</div> <div class="calendar-table__col">Пт</div> <div class="calendar-table__col">Сб</div> <div class="calendar-table__col">Вс</div> </div> </div> <div class="calendar-table__body">'
-    for ij in range(6):
+    for ij in range(weeks2Show):
         mainHtmlString = mainHtmlString + '<div class="calendar-table__row">'
         for j in range(7):
             if markDate[ij][j] == 1:
