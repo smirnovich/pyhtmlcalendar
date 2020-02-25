@@ -4,11 +4,11 @@ To do so I decided to generate HTML page with Python. To add some event telegram
 
 # My plans
 
--clean up calendar code
--add features to telegram bot ("gui"-calendar, rights for different kinds of users, etc.)
--create server part
-etc
+- clean up calendar code
+- add features to telegram bot ("gui"-calendar, rights for different kinds of users, etc.)
+- create server part
+- etc.
 
 Current structure is:
-telegbot_events.py - Telegram bot
-newWebValendar.py - generation of web-page
+* telegbot_events.py - Telegram bot
+* newWebValendar.py - generation of web-page

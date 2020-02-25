@@ -74,7 +74,6 @@ def eventName(message):
     
 
 def registerEvent(message):
-    TO_CHAT_ID = 59610688
     eventsFile = pd.DataFrame([[dateEnd, dateEnd, message.text]])
     eventsFile.to_csv('./fitosEvents.csv', header=None, index=None, mode='a')
     print(eventsFile)
