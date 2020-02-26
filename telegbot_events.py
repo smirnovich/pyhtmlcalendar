@@ -38,12 +38,13 @@ def is_date(string, fuzzy=False):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    startKey = types.ReplyKeyboardMarkup(True, False)
-    startKey.row('Создать мероприятие')
-    messageStart = bot.send_message(message.chat.id, 'Пришлите дату мероприятия в формате DD.MM.YYYY')
-    bot.register_next_step_handler(messageStart, eventName)
-
-
+    start = telebot.types.ReplyKeyboardMarkup(True, False)
+    #messageStart = bot.send_message(message.chat.id, 'Пришлите дату мероприятия в формате DD.MM.YYYY')
+    start.row('Создать мероприятие')
+    start.row('Показать список мероприятий')
+    start.row('Удалить мероприятие')
+    messageStart = bot.send_message(message.from_user.id, 'Выбери действие', reply_markup=start)
+    bot.register_next_step_handler(messageStart, getCommand)
 """ def second_date(message):
     global dateBegin
     dateBegin = message.text
@@ -55,6 +56,31 @@ def start(message):
         bot.register_next_step_handler(messageFinish, second_date)
     print(dateBegin) """
 
+def getCommand(message):
+    if message.text == 'Создать мероприятие':
+        messageStart = bot.send_message(message.chat.id, 'Пришлите дату мероприятия в формате DD.MM.YYYY')
+        bot.register_next_step_handler(messageStart, eventName)
+    elif message.text == 'Показать список мероприятий':
+        df = pd.read_csv('fitosEvents.csv',header=None, sep=',')
+        listDates = ''
+        for i in range(len(df)):
+            listDates =listDates+str(i) + ' ' +df[0][i] + ' '+df[2][i]+'\n'
+        message1 = bot.send_message(message.chat.id, listDates)
+        bot.register_next_step_handler(message1, getCommand)
+    elif (message.text == 'Удалить мероприятие'):
+        if message.chat.id == mainInfo.whomReplay:
+            messageErr = bot.send_message(message.chat.id, 'Введите номер записи для удаления:')
+            bot.register_next_step_handler(messageErr, deleteEvent)
+        else:
+            messageErr = bot.send_message(message.chat.id, 'Данная команда Вам недоступна, выберите другую')
+            bot.register_next_step_handler(messageErr, getCommand)
+    else:
+        bot.send_message(message.chat.id, 'Неверная команда! Выберите из меню')
+
+def deleteEvent(message):
+    messageErr = bot.send_message(message.chat.id, 'Мероприятие удалено')
+    bot.register_next_step_handler(messageErr, getCommand)
+
 
 def eventName(message):
     global dateEnd
@@ -62,24 +88,23 @@ def eventName(message):
     if (is_date(dateEnd)):
         checkDelta = datetime.datetime.strptime(dateEnd, '%d.%m.%Y') - datetime.datetime.today()
         if checkDelta.days < 0:
-            messageEventName = bot.send_message(message.chat.id, 'Мероприятие уже прошло! начните заново /start')
-            bot.register_next_step_handler(messageEventName, start)
+            messageEventName = bot.send_message(message.chat.id, 'Мероприятие уже прошло! введите другую дату')
+            bot.register_next_step_handler(messageEventName, eventName)
         else:
             messageEventName = bot.send_message(message.chat.id, 'Как называется мероприятие?')
             bot.register_next_step_handler(messageEventName, registerEvent)
     else:
         messageFinish = bot.send_message(message.chat.id, 'Дата неверна! попробуйте еще раз')
-        bot.register_next_step_handler(messageFinish, start)
+        bot.register_next_step_handler(messageFinish, eventName)
     print(dateEnd)
     
 
 def registerEvent(message):
-    TO_CHAT_ID = 59610688
     eventsFile = pd.DataFrame([[dateEnd, dateEnd, message.text]])
     eventsFile.to_csv('./fitosEvents.csv', header=None, index=None, mode='a')
     print(eventsFile)
-    messageEventCreated = bot.send_message(message.chat.id, 'Спасибо! внесено в список. Чтобы добавить мероприятие нажмите  /start')
-    bot.register_next_step_handler(messageEventCreated, start)
+    messageEventCreated = bot.send_message(message.chat.id, 'Спасибо! внесено в список.')
+    bot.register_next_step_handler(messageEventCreated, getCommand)
     bot.forward_message(TO_CHAT_ID, message.chat.id, message.message_id)
     newWebCalendar.createHTMLFile('fitosEvents.csv')
 

@@ -175,7 +175,7 @@ def createHTMLFile(fileNameEvents):
     
     HTMLFileString = string1 + header1 + string2 + mainHtmlString + string3 + eventsHtmlString + string4
     
-    f1 = open('/home/dsmirnov/pysrc/Calendar/index_test.html', mode='w')
+    f1 = open('/home/dsmirnov/pysrc/pycalendar/pyhtmlcalendar/index_test.html', mode='w')
     f1.write(HTMLFileString)
     f1.close()
 
