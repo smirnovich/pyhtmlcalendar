@@ -19,7 +19,10 @@ current_shown_dates = {}
 eventsFile = pd.DataFrame([])
 eventsFile.to_csv('fitosEvents.csv', header=None, index_label=None, mode='a')
 dateBegin = 0
+timeEvent = 0
 dateEnd = 0
+
+
 def is_date(string, fuzzy=False):
     """
     Return whether the string can be interpreted as a date.
@@ -50,7 +53,7 @@ def start(message):
     dateBegin = message.text
     if (is_date(dateBegin)):
         messageFinish = bot.send_message(message.chat.id, 'Пришлите дату окончания мероприятия в формате DD.MM.YYYY')
-        bot.register_next_step_handler(messageFinish, eventName)
+        bot.register_next_step_handler(messageFinish, eventDate)
     else:
         messageFinish = bot.send_message(message.chat.id, 'Дата неверна! попробуйте еще раз')
         bot.register_next_step_handler(messageFinish, second_date)
@@ -59,7 +62,7 @@ def start(message):
 def getCommand(message):
     if message.text == 'Создать мероприятие':
         messageStart = bot.send_message(message.chat.id, 'Пришлите дату мероприятия в формате DD.MM.YYYY')
-        bot.register_next_step_handler(messageStart, eventName)
+        bot.register_next_step_handler(messageStart, eventDate)
     elif message.text == 'Показать список мероприятий':
         df = pd.read_csv('fitosEvents.csv',header=None, sep=',')
         listDates = ''
@@ -82,25 +85,37 @@ def deleteEvent(message):
     bot.register_next_step_handler(messageErr, getCommand)
 
 
-def eventName(message):
+def eventDate(message):
     global dateEnd
     dateEnd = message.text
     if (is_date(dateEnd)):
         checkDelta = datetime.datetime.strptime(dateEnd, '%d.%m.%Y') - datetime.datetime.today()
         if checkDelta.days < 0:
             messageEventName = bot.send_message(message.chat.id, 'Мероприятие уже прошло! введите другую дату')
-            bot.register_next_step_handler(messageEventName, eventName)
+            bot.register_next_step_handler(messageEventName, eventDate)
         else:
-            messageEventName = bot.send_message(message.chat.id, 'Как называется мероприятие?')
-            bot.register_next_step_handler(messageEventName, registerEvent)
+            messageEventName = bot.send_message(message.chat.id, 'В какое время начинается мероприятие?')
+            bot.register_next_step_handler(messageEventName, eventTime)
     else:
         messageFinish = bot.send_message(message.chat.id, 'Дата неверна! попробуйте еще раз')
-        bot.register_next_step_handler(messageFinish, eventName)
+        bot.register_next_step_handler(messageFinish, eventDate)
     print(dateEnd)
+
+
+def eventTime(message):
+    global timeEvent
+    timeEvent = message.text
+    if (is_date(timeEvent)):
+        messageEventName = bot.send_message(message.chat.id, 'Как называется мероприятие?')
+        bot.register_next_step_handler(messageEventName, registerEvent)
+    else:
+        messageFinish = bot.send_message(message.chat.id, 'Время в неверном формате! Попробуйте еще раз')
+        bot.register_next_step_handler(messageFinish, eventTime)
+    print(timeEvent)
     
 
 def registerEvent(message):
-    eventsFile = pd.DataFrame([[dateEnd, dateEnd, message.text]])
+    eventsFile = pd.DataFrame([[dateEnd, timeEvent, message.text]])
     eventsFile.to_csv('./fitosEvents.csv', header=None, index=None, mode='a')
     print(eventsFile)
     messageEventCreated = bot.send_message(message.chat.id, 'Спасибо! внесено в список.')

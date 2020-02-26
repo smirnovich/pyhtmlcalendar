@@ -99,9 +99,9 @@ def createHTMLFile(fileNameEvents):
     eventsCount = len(df[0])
     for i in range(eventsCount):
         date1 = df[0][i].split('.')
-        date2 = df[1][i].split('.')
-        df1[0][0+i:1+i] = df[0][0+i:1+i].replace(df[0][i],datetime.date(int(date1[2]),int(date1[1]),int(date1[0])))
-        df1[1][0+i:1+i] = df[1][0+i:1+i].replace(df[1][i],datetime.date(int(date2[2]),int(date2[1]),int(date2[0])))
+        date2 = df[1][i].split(':')
+        df1[0][0+i:1+i] = df[0][0+i:1+i].replace(df[0][i],datetime.date(int(date1[2]),int(date1[1]),int(date1[0], date2[0], date2[1])))
+        #df1[1][0+i:1+i] = df[1][0+i:1+i].replace(df[1][i],datetime.date(int(date2[2]),int(date2[1]),int(date2[0])))
     
     # sort starting date    
     #df = df.sort_values(by=0, ascending=True)
@@ -121,7 +121,7 @@ def createHTMLFile(fileNameEvents):
             
         for i in range(eventsCount):
             #if ((df[0][i] == datetime.date(nextYear,nextMonth,calendar.monthrange(nextYear, nextMonth)[1])) or (df1[0][i] >= datetime.date(curData.year,curData.month, curData.day))):
-            if (df[0][i]==data2Mark or df1[1][i]==data2Mark):
+            if (df[0][i]==data2Mark): # or df1[1][i]==data2Mark
                 markDate[0][curData.isoweekday()+j-1] = 1
                 strDates.append(df[2][i])
                 strDates2.append(data2Mark)
