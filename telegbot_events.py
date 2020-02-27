@@ -71,7 +71,7 @@ def getCommand(message):
         df = pd.read_csv('fitosEvents.csv',header=None, sep=',')
         listDates = ''
         for i in range(len(df)):
-            listDates =listDates+str(i) + ' ' +df[0][i] + ' '+df[2][i]+'\n'
+            listDates =listDates+str(i) + ') ' +df[0][i] + ' '+df[2][i]+'\n'
         message1 = bot.send_message(message.chat.id, listDates)
         bot.register_next_step_handler(message1, getCommand)
     elif (message.text == 'Удалить мероприятие'):
@@ -85,10 +85,20 @@ def getCommand(message):
         bot.send_message(message.chat.id, 'Неверная команда! Выберите из меню')
 
 def deleteEvent(message):
-    messageErr = bot.send_message(message.chat.id, 'Мероприятие удалено')
-    bot.register_next_step_handler(messageErr, getCommand)
-    # Here will be added csv-file editing
-    newWebCalendar.createHTMLFile('fitosEvents.csv')
+    # csv-file editing (admin privelege)
+    if message.text.is_digit()==False:
+        messageErr = bot.send_message(message.chat.id, 'Введены некорректные данные. Начните сначала')
+        bot.register_next_step_handler(messageErr, getCommand)
+    else:
+        df = pd.read_csv('fitosEvents.csv', header=None)
+        df = df.drop([int(message.text)])
+
+        # here will be added a backup of deleted events, stored in fitosDeletedEvents.csv
+
+        df.to_csv('fitosEvents.csv', sep=',',header=None, index=None)
+        messageErr = bot.send_message(message.chat.id, 'Мероприятие удалено')
+        bot.register_next_step_handler(messageErr, getCommand)
+        newWebCalendar.createHTMLFile('fitosEvents.csv')
 
 def eventDate(message):
     global dateEnd
