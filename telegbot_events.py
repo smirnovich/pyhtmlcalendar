@@ -48,16 +48,20 @@ def start(message):
     start.row('Удалить мероприятие')
     messageStart = bot.send_message(message.from_user.id, 'Выбери действие', reply_markup=start)
     bot.register_next_step_handler(messageStart, getCommand)
-""" def second_date(message):
-    global dateBegin
-    dateBegin = message.text
-    if (is_date(dateBegin)):
-        messageFinish = bot.send_message(message.chat.id, 'Пришлите дату окончания мероприятия в формате DD.MM.YYYY')
-        bot.register_next_step_handler(messageFinish, eventDate)
-    else:
-        messageFinish = bot.send_message(message.chat.id, 'Дата неверна! попробуйте еще раз')
-        bot.register_next_step_handler(messageFinish, second_date)
-    print(dateBegin) """
+"""
+Draft for future releases:
+
+# processing continuos events
+def second_date(message):
+
+
+# administration processing
+def admin(message):
+
+
+# autoupdate for html-file 
+def updateCalendar(datetime.today()):
+ """
 
 def getCommand(message):
     if message.text == 'Создать мероприятие':
@@ -83,7 +87,8 @@ def getCommand(message):
 def deleteEvent(message):
     messageErr = bot.send_message(message.chat.id, 'Мероприятие удалено')
     bot.register_next_step_handler(messageErr, getCommand)
-
+    # Here will be added csv-file editing
+    newWebCalendar.createHTMLFile('fitosEvents.csv')
 
 def eventDate(message):
     global dateEnd
@@ -115,7 +120,7 @@ def eventTime(message):
     
 
 def registerEvent(message):
-    eventsFile = pd.DataFrame([[dateEnd, timeEvent, message.text]])
+    eventsFile = pd.DataFrame([[dateEnd,dateEnd,message.text,timeEvent]])
     eventsFile.to_csv('./fitosEvents.csv', header=None, index=None, mode='a')
     print(eventsFile)
     messageEventCreated = bot.send_message(message.chat.id, 'Спасибо! внесено в список.')

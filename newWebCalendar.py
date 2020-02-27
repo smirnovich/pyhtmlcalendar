@@ -2,8 +2,18 @@ import datetime
 import calendar
 import pandas as pd
 from sys import platform
-fileNameEvents = 'fitosEvents.csv'
+
+###################################################
+## Main function to create HTML-page of calendar ##
+###################################################
+# By parsing csv-file it creates html-page with
+# calendar, with marked dates. The calendar's first 
+# week is always the week with today date.
+
+# fileNameEvents = 'fitosEvents.csv'
 def createHTMLFile(fileNameEvents):
+
+    # initializing main variables
     curData = datetime.datetime.today()
     weeks2Show = 6
     mainTable = [[0,0,0,0,0,0,0],
@@ -33,10 +43,8 @@ def createHTMLFile(fileNameEvents):
     else:
         nextMonth2 = nextMonth + 1
         nextYear2 = nextYear
-     
-    
+
     curCalendar = calendar.TextCalendar(calendar.MONDAY)
-    
     prevMonthArr = calendar.monthcalendar(prevYear,prevMonth)
     curMonthArr  = calendar.monthcalendar(curData.year,curData.month)
     next1Month   = calendar.monthcalendar(nextYear,nextMonth)
@@ -52,7 +60,7 @@ def createHTMLFile(fileNameEvents):
             curMonthArr[-1][i] = next1Month[0][i]
             flagNext = 1
     
-    
+    # information to fill the first week
     curMonthToCheckWeek = []
     
     for i in curCalendar.itermonthdays(curData.year,curData.month):
@@ -73,11 +81,10 @@ def createHTMLFile(fileNameEvents):
     
     curWeek = (len(curMonthToCheckWeek)-1)//7
     
-    
-    
     for i in range(7):
         mainTable[0][i] = curMonthArr[curWeek][i]
     
+    # filling calendar with other weeks
     for i in range(len(curMonthArr) - curWeek-1):
         mainTable[1 + i][:] = curMonthArr[curWeek+1+i][:]
     
@@ -152,15 +159,11 @@ def createHTMLFile(fileNameEvents):
                     strDates.append(df[2][i])
                     strTimes.append(df[3][i])
                     strDates2.append(data2Mark)
-                    print('data2Mark')
-                    print(df[0][i].date())
-    
     
     HTMLFileString = ''
     mainHtmlString = ''
     eventsHtmlString = ''
     p = 0
-    
     
     string1 = '<!DOCTYPE html> <html lang="ru"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta http-equiv="X-UA-Compatible" content="ie=edge"> <meta http-equiv="Refresh" content="15" /> <title>Calendar</title> <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700" rel="stylesheet"> <link rel="stylesheet" type="text/css" href="style.css"> </head> <body> <div class="main-container-wrapper"> <div class="main-container-subwrapper-1"> <div class="calendar-container"> <div class="calendar-container__header"> <button class="calendar-container__btn calendar-container__btn--left" title="Previous"> <i class="icon ion-ios-arrow-back"></i> </button>'
     header1 = '<h2 class="calendar-container__title">'+str(curData)[0:16]+'</h2>'
@@ -172,10 +175,8 @@ def createHTMLFile(fileNameEvents):
                 mainHtmlString = mainHtmlString + '<div class="calendar-table__col calendar-table__event"><div class="calendar-table__item"><span>'+str(mainTable[ij][j])+'</span></div></div>'
                 eventsHtmlString = eventsHtmlString + '<li class="events__item"><div class="events__item--left"><span class="events__name">' + strDates[p] + '</span><span class="events__date">' + str(strDates2[p])[5::] + '</span></div><span class="events__tag">'+strTimes[p]+'</span></li>'
                 p = p + 1
-               # print(str(mainTable[ij][j]))
             else:
                 mainHtmlString = mainHtmlString + '<div class="calendar-table__col"><div class="calendar-table__item"><span>'+str(mainTable[ij][j])+'</span></div></div>'
-               # print(str(mainTable[ij][j]))
             
         mainHtmlString = mainHtmlString + '</div>'
     
