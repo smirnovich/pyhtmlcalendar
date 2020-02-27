@@ -1,8 +1,8 @@
 import datetime
 import calendar
 import pandas as pd
-
-
+from sys import platform
+fileNameEvents = 'fitosEvents.csv'
 def createHTMLFile(fileNameEvents):
     curData = datetime.datetime.today()
     weeks2Show = 6
@@ -99,8 +99,8 @@ def createHTMLFile(fileNameEvents):
     eventsCount = len(df[0])
     for i in range(eventsCount):
         date1 = df[0][i].split('.')
-        date2 = df[1][i].split(':')
-        df1[0][0+i:1+i] = df[0][0+i:1+i].replace(df[0][i],datetime.date(int(date1[2]),int(date1[1]),int(date1[0], date2[0], date2[1])))
+        date2 = df[3][i].split(':')
+        df1[0][0+i:1+i] = df[0][0+i:1+i].replace(df[0][i],datetime.datetime(int(date1[2]),int(date1[1]),int(date1[0]), int(date2[0]), int(date2[1])))
         #df1[1][0+i:1+i] = df[1][0+i:1+i].replace(df[1][i],datetime.date(int(date2[2]),int(date2[1]),int(date2[0])))
     
     # sort starting date    
@@ -108,6 +108,7 @@ def createHTMLFile(fileNameEvents):
     jjj = 0
     flagMarkNextMonth = 0
     strDates = []
+    strTimes = []
     strDates2 = []
     for j in range(0,8-curData.isoweekday()):
         if flagMarkNextMonth == 1:
@@ -121,9 +122,10 @@ def createHTMLFile(fileNameEvents):
             
         for i in range(eventsCount):
             #if ((df[0][i] == datetime.date(nextYear,nextMonth,calendar.monthrange(nextYear, nextMonth)[1])) or (df1[0][i] >= datetime.date(curData.year,curData.month, curData.day))):
-            if (df[0][i]==data2Mark): # or df1[1][i]==data2Mark
+            if (df[0][i].date()==data2Mark): # or df1[1][i]==data2Mark
                 markDate[0][curData.isoweekday()+j-1] = 1
                 strDates.append(df[2][i])
+                strTimes.append(df[3][i])
                 strDates2.append(data2Mark)
     for ij in range(1,weeks2Show):
         for j in range(7):
@@ -134,6 +136,8 @@ def createHTMLFile(fileNameEvents):
                     flagMarkNextMonth = 2
                 else:
                     data2Mark = datetime.date(nextYear,nextMonth, mainTable[ij][j])
+            elif flagMarkNextMonth == 2:
+                data2Mark = datetime.date(nextYear2,nextMonth2, mainTable[ij][j])
             else:
                 data2Mark = datetime.date(curData.year, curData.month, mainTable[ij][j])
                 jjj=j
@@ -141,11 +145,16 @@ def createHTMLFile(fileNameEvents):
                 flagMarkNextMonth = 1
                
             for i in range(eventsCount):
+                print(data2Mark)
                 #if ((df[0][i] == datetime.date(nextYear,nextMonth,calendar.monthrange(nextYear, nextMonth)[1])) or (df1[0][i] >= datetime.date(curData.year,curData.month, curData.day))):
-                if (df[0][i]==data2Mark): # or df1[1][i]==data2Mark
+                if (df[0][i].date()==data2Mark): # or df1[1][i]==data2Mark
                     markDate[ij][j] = 1
                     strDates.append(df[2][i])
+                    strTimes.append(df[3][i])
                     strDates2.append(data2Mark)
+                    print('data2Mark')
+                    print(df[0][i].date())
+    
     
     HTMLFileString = ''
     mainHtmlString = ''
@@ -161,7 +170,7 @@ def createHTMLFile(fileNameEvents):
         for j in range(7):
             if markDate[ij][j] == 1:
                 mainHtmlString = mainHtmlString + '<div class="calendar-table__col calendar-table__event"><div class="calendar-table__item"><span>'+str(mainTable[ij][j])+'</span></div></div>'
-                eventsHtmlString = eventsHtmlString + '<li class="events__item"><div class="events__item--left"><span class="events__name">' + strDates[p] + '</span><span class="events__date">' + str(strDates2[p])[5::] + '</span></div><span class="events__tag">17:00</span></li>'
+                eventsHtmlString = eventsHtmlString + '<li class="events__item"><div class="events__item--left"><span class="events__name">' + strDates[p] + '</span><span class="events__date">' + str(strDates2[p])[5::] + '</span></div><span class="events__tag">'+strTimes[p]+'</span></li>'
                 p = p + 1
                # print(str(mainTable[ij][j]))
             else:
@@ -174,8 +183,10 @@ def createHTMLFile(fileNameEvents):
     string4 = '</ul> </div> </div> <div class="main-container-subwrapper-2"> <div class="events__veryitem"> <span> Здесь место важным сообщениям </span> </div> </div> </div> </body> </html>'
     
     HTMLFileString = string1 + header1 + string2 + mainHtmlString + string3 + eventsHtmlString + string4
-    
-    f1 = open('/home/dsmirnov/pysrc/pycalendar/pyhtmlcalendar/index_test.html', mode='w')
+    if platform == 'linux':
+        f1 = open('index_test.html', mode='w')
+    else:
+        f1 = open('index_test.html', mode='w')
     f1.write(HTMLFileString)
     f1.close()
 
