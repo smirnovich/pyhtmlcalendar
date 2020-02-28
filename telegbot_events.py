@@ -7,7 +7,7 @@ from dateutil.parser import parse
 #from telegramcalendar import create_calendar
 import pandas as pd
 import newWebCalendar
-
+import time
 #here I store token from Telegram bot in separate file
 import mainInfo
 
@@ -21,7 +21,7 @@ eventsFile.to_csv('fitosEvents.csv', header=None, index_label=None, mode='a')
 dateBegin = 0
 timeEvent = 0
 dateEnd = 0
-
+updateTimer = 0
 
 def is_date(string, fuzzy=False):
     """
@@ -45,6 +45,7 @@ def start(message):
     #messageStart = bot.send_message(message.chat.id, 'Пришлите дату мероприятия в формате DD.MM.YYYY')
     start.row('Создать мероприятие')
     start.row('Показать список мероприятий')
+    # start.row('Срочное сообщение')
     start.row('Удалить мероприятие')
     messageStart = bot.send_message(message.from_user.id, 'Выбери действие', reply_markup=start)
     bot.register_next_step_handler(messageStart, getCommand)
@@ -58,10 +59,22 @@ def second_date(message):
 # administration processing
 def admin(message):
 
+# important messages (below the calendar)
+# add ability to set what time it can be alive (up to a day)
+def breakingMessage(message):
 
-# autoupdate for html-file 
-def updateCalendar(datetime.today()):
- """
+"""
+# autoupdate for html-file need to run in parallel
+def updateCalendar():
+    global updateTimer
+    if updateTimer == 15:
+        updateTimer = 0
+        newWebCalendar.createHTMLFile('fitosEvents.csv')
+        print(datetime.datetime.today())
+    else:
+        time.sleep(4)
+        updateTimer = updateTimer + 1
+ 
 
 def getCommand(message):
     if message.text == 'Создать мероприятие':
@@ -86,15 +99,16 @@ def getCommand(message):
 
 def deleteEvent(message):
     # csv-file editing (admin privelege)
-    if message.text.is_digit()==False:
+    if message.text.isdigit()==False:
         messageErr = bot.send_message(message.chat.id, 'Введены некорректные данные. Начните сначала')
         bot.register_next_step_handler(messageErr, getCommand)
     else:
         df = pd.read_csv('fitosEvents.csv', header=None)
+        # Backup deleted events
+        f1 = open('fitosDeletedEvents.csv', 'a')
+        f1.write(df[int(message.text)]+'\n')
+        f1.close()
         df = df.drop([int(message.text)])
-
-        # here will be added a backup of deleted events, stored in fitosDeletedEvents.csv
-
         df.to_csv('fitosEvents.csv', sep=',',header=None, index=None)
         messageErr = bot.send_message(message.chat.id, 'Мероприятие удалено')
         bot.register_next_step_handler(messageErr, getCommand)
@@ -138,5 +152,7 @@ def registerEvent(message):
     bot.forward_message(TO_CHAT_ID, message.chat.id, message.message_id)
     newWebCalendar.createHTMLFile('fitosEvents.csv')
 
+# updateCalendar()
 if __name__ == '__main__':
     bot.infinity_polling()
+    
