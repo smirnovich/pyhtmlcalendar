@@ -8,6 +8,7 @@ from dateutil.parser import parse
 import pandas as pd
 import newWebCalendar
 import time
+import threading
 #here I store token from Telegram bot in separate file
 import mainInfo
 
@@ -67,13 +68,16 @@ def breakingMessage(message):
 # autoupdate for html-file need to run in parallel
 def updateCalendar():
     global updateTimer
-    if updateTimer == 15:
+    if updateTimer == 5:
         updateTimer = 0
         newWebCalendar.createHTMLFile('fitosEvents.csv')
-        print(datetime.datetime.today())
+       # print(datetime.datetime.today())
+      #  print('Calendar updated')
     else:
         time.sleep(4)
         updateTimer = updateTimer + 1
+    thread1 = threading.Thread(target=updateCalendar)
+    thread1.start()
  
 
 def getCommand(message):
@@ -106,7 +110,7 @@ def deleteEvent(message):
         df = pd.read_csv('fitosEvents.csv', header=None)
         # Backup deleted events
         f1 = open('fitosDeletedEvents.csv', 'a')
-        f1.write(df[int(message.text)]+'\n')
+        f1.write(df[0][int(message.text)]+' '+df[1][int(message.text)]+' '+df[2][int(message.text)]+' '+df[3][int(message.text)]+'\n')
         f1.close()
         df = df.drop([int(message.text)])
         df.to_csv('fitosEvents.csv', sep=',',header=None, index=None)
@@ -153,6 +157,9 @@ def registerEvent(message):
     newWebCalendar.createHTMLFile('fitosEvents.csv')
 
 # updateCalendar()
+thread1 = threading.Thread(target=updateCalendar)
+thread1.start()
+
 if __name__ == '__main__':
     bot.infinity_polling()
     
