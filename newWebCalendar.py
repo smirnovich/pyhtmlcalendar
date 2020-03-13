@@ -11,7 +11,7 @@ from sys import platform
 # week is always the week with today date.
 
 # fileNameEvents = 'fitosEvents.csv'
-def createHTMLFile(fileNameEvents):
+def createHTMLFile(fileNameEvents, iMsg):
 
     # initializing main variables
     curData = datetime.datetime.today()
@@ -206,7 +206,7 @@ def createHTMLFile(fileNameEvents):
         mainHtmlString = mainHtmlString + '</div>'
     
     string3 = '</div> </div> </div> </div> <div class="events-container"> <span class="events__title">Ближайшие события</span> <ul class="events__list">'
-    string4 = '</ul> </div> </div> <div class="main-container-subwrapper-2"> <div class="events__veryitem"> <span> Здесь место важным сообщениям </span> </div> </div> </div> </body> </html>'
+    string4 = '</ul> </div> </div> <div class="main-container-subwrapper-2"> <div class="events__veryitem"> <span> '+str(iMsg)+'</span> </div> </div> </div> </body> </html>'
     
     HTMLFileString = string1 + header1 + string2 + mainHtmlString + string3 + eventsHtmlString + string4
     if platform == 'linux':
