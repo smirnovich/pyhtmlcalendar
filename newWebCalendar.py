@@ -189,6 +189,8 @@ def createHTMLFile(fileNameEvents, iMsg):
             else:
                 if markDate[0][j] == 1:
                     mainHtmlString = mainHtmlString + '<div class="calendar-table__col calendar-table__event"><div class="calendar-table__item"><span>'+str(mainTable[0][j])+'</span></div></div>'
+                    eventsHtmlString = eventsHtmlString + '<li class="events__item"><div class="events__item--left"><span class="events__name">' + strDates[p] + '</span><span class="events__date">' + str(strDates2[p])[5::] + '</span></div><span class="events__tag">'+strTimes[p]+'</span></li>'
+                    p = p + 1
                 else:
                     mainHtmlString = mainHtmlString + '<div class="calendar-table__col"><div class="calendar-table__item"><span>'+str(mainTable[0][j])+'</span></div></div>'
     mainHtmlString = mainHtmlString + '</div>'
