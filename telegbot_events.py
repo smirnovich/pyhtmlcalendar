@@ -23,7 +23,7 @@ dateBegin = 0
 timeEvent = 0
 dateEnd = 0
 updateTimer = 0
-lastImportMessage = 'Здесь выводятся важные сообщения'
+lastImportantMessage = 'Здесь выводятся важные сообщения'
 
 def is_date(string, fuzzy=False):
     """
@@ -38,6 +38,20 @@ def is_date(string, fuzzy=False):
 
     except ValueError:
         return False
+
+def csvEmpty(str):
+    """
+    Return whether csv-file has any string or not
+
+    :param string: str, name of the csv-file, e.g. 'myEvents.csv'
+    :param fuzzy: bool, ignore unknown tokens in string if True
+    """
+    try:
+        df = pd.read_csv(str,header=None, sep=',')
+        return False
+    except ValueError:
+        return True
+
 
 
 
@@ -66,8 +80,8 @@ def admin(message):
 # add ability to set what time it can be alive (up to a day)
 def breakingMessage(message):
     newWebCalendar.createHTMLFile('fitosEvents.csv', message.text)
-    global lastImportMessage 
-    lastImportMessage = str(message.text)
+    global lastImportantMessage 
+    lastImportantMessage = str(message.text)
     messageErr = bot.send_message(message.chat.id, 'Сообщение опубликовано')
     bot.register_next_step_handler(messageErr, getCommand)
 
@@ -77,7 +91,7 @@ def updateCalendar():
     global updateTimer
     if updateTimer == 5:
         updateTimer = 0
-        newWebCalendar.createHTMLFile('fitosEvents.csv', lastImportMessage)
+        newWebCalendar.createHTMLFile('fitosEvents.csv', lastImportantMessage)
        # print(datetime.datetime.today())
       #  print('Calendar updated')
     else:
@@ -92,16 +106,24 @@ def getCommand(message):
         messageStart = bot.send_message(message.chat.id, 'Пришлите дату мероприятия в формате DD.MM.YYYY')
         bot.register_next_step_handler(messageStart, eventDate)
     elif message.text == 'Показать список мероприятий':
-        df = pd.read_csv('fitosEvents.csv',header=None, sep=',')
-        listDates = ''
-        for i in range(len(df)):
-            listDates =listDates+str(i) + ') ' +df[0][i] + ' '+df[2][i]+'\n'
-        message1 = bot.send_message(message.chat.id, listDates)
-        bot.register_next_step_handler(message1, getCommand)
+        if (csvEmpty('fitosEvents.csv')):
+            messageStart = bot.send_message(message.chat.id, 'Все мероприятия прошли, а новых еще не создали')
+            bot.register_next_step_handler(messageStart, getCommand)
+        else:
+            df = pd.read_csv('fitosEvents.csv',header=None, sep=',')
+            listDates = ''
+            for i in range(len(df)):
+                listDates =listDates+str(i) + ') ' +df[0][i] + ' '+df[2][i]+'\n'
+            message1 = bot.send_message(message.chat.id, listDates)
+            bot.register_next_step_handler(message1, getCommand)
     elif (message.text == 'Удалить мероприятие'):
         if message.chat.id == mainInfo.whomReplay:
-            messageErr = bot.send_message(message.chat.id, 'Введите номер записи для удаления:')
-            bot.register_next_step_handler(messageErr, deleteEvent)
+            if (csvEmpty('fitosEvents.csv')):
+                messageStart = bot.send_message(message.chat.id, 'Все мероприятия прошли, а новых еще не создали')
+                bot.register_next_step_handler(messageStart, getCommand)
+            else:
+                messageErr = bot.send_message(message.chat.id, 'Введите номер записи для удаления:')
+                bot.register_next_step_handler(messageErr, deleteEvent)
         else:
             messageErr = bot.send_message(message.chat.id, 'Данная команда Вам недоступна, выберите другую')
             bot.register_next_step_handler(messageErr, getCommand)
@@ -126,7 +148,7 @@ def deleteEvent(message):
         df.to_csv('fitosEvents.csv', sep=',',header=None, index=None)
         messageErr = bot.send_message(message.chat.id, 'Мероприятие удалено')
         bot.register_next_step_handler(messageErr, getCommand)
-        newWebCalendar.createHTMLFile('fitosEvents.csv', lastImportMessage)
+        newWebCalendar.createHTMLFile('fitosEvents.csv', lastImportantMessage)
 
 def eventDate(message):
     global dateEnd
@@ -164,7 +186,7 @@ def registerEvent(message):
     messageEventCreated = bot.send_message(message.chat.id, 'Спасибо! внесено в список.')
     bot.register_next_step_handler(messageEventCreated, getCommand)
     bot.forward_message(TO_CHAT_ID, message.chat.id, message.message_id)
-    newWebCalendar.createHTMLFile('fitosEvents.csv',lastImportMessage)
+    newWebCalendar.createHTMLFile('fitosEvents.csv',lastImportantMessage)
 
 # updateCalendar()
 thread1 = threading.Thread(target=updateCalendar)

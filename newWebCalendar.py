@@ -8,7 +8,8 @@ from sys import platform
 ###################################################
 # By parsing csv-file it creates html-page with
 # calendar, with marked dates. The calendar's first 
-# week is always the week with today date.
+# week is always the week with today date. After 
+# parsing old events are archived 
 
 # fileNameEvents = 'fitosEvents.csv'
 def createHTMLFile(fileNameEvents, iMsg):
@@ -211,12 +212,18 @@ def createHTMLFile(fileNameEvents, iMsg):
     string4 = '</ul> </div> </div> <div class="main-container-subwrapper-2"> <div class="events__veryitem"> <span> '+str(iMsg)+'</span> </div> </div> </div> </body> </html>'
     
     HTMLFileString = string1 + header1 + string2 + mainHtmlString + string3 + eventsHtmlString + string4
+    # Draft for OS-specified settings for the html-file
     if platform == 'linux':
-        f1 = open('index_test.html', mode='w')
+        f1 = open('index_test.html', mode='w', encoding='utf8')
     else:
-        f1 = open('index_test.html', mode='w')
+        f1 = open('index_test.html', mode='w', encoding='utf8')
     f1.write(HTMLFileString)
     f1.close()
+
+    # Removing old events from fitosEvents.csv and put them in a separate file
+    dfSort = df.sort_values(by=0, ascending=True)
+    dfSort[:][dfSort[0]>=datetime.datetime.today()].to_csv('fitosEvents.csv', sep=',',header=None, index=None)
+    dfSort[:][dfSort[0]<datetime.datetime.today()].to_csv('fitosEventsArchive.csv', sep=',',header=None, index=None)
 
 
 
