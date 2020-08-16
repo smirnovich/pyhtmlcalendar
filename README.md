@@ -8,15 +8,18 @@ To do so I decided to generate HTML page with Python. To add some event telegram
 
 - [x] today mark
 - [x] previous days mark
-- [ ] previous events delete/store in different file
+- [x] previous events delete/store in different file
+- [x] create bot to work in Russia without external vpn (apihelper doesn't work) (upd. Telegram is not blocked in Russia now)
 - [ ] admin features from telegram
 - [ ] inline calendar for telegram
 - [ ] shadow next month
 - [ ] clean up calendar code (forever)
-- [ ] create bot to work in Russia without external vpn (apihelper doesn't work)
 - create server part
 - additional features after release
 
 Current structure is:
 * _telegbot_events.py_ - Telegram bot
-* _newWebValendar.py_ - generation of web-page
+* _newWebValendar.py_ - web-page generator
+
+16.08.2020
+* Archive of past events added
